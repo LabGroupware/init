@@ -1,6 +1,8 @@
 services:
   kafka:
     image: bitnami/kafka:3.7.1
+    networks:
+      - connect_network
     container_name: kafka
     restart: unless-stopped
     ports:
@@ -27,6 +29,8 @@ services:
       # - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
   kafka-ui:
     image: "provectuslabs/kafka-ui:latest"
+    networks:
+      - connect_network
     ports:
       - "8080:8080"
     depends_on:
@@ -39,10 +43,11 @@ services:
   connect:
     container_name: "connect"
     image: "ablankz/debezium:1.0.0"
+    networks:
+      - connect_network
     restart: unless-stopped
     depends_on:
       - "kafka"
-      - "postgres"
     ports:
       - "8083:8083"
     environment:
@@ -53,3 +58,6 @@ services:
       STATUS_STORAGE_TOPIC: ms_connect_statuses
 volumes:
   kafka_data:
+networks:
+  connect_network:
+    external: true
